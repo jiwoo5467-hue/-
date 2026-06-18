@@ -1,0 +1,37 @@
+/* 모바일 터치 시 생기는 파란색 선택 영역 제거 */
+-webkit-tap-highlight-color: transparent;
+
+/* 텍스트 드래그 및 선택 방지 (게임 제어 시 방해 요소 제거) */
+* {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* 모바일 브라우저의 상하 스크롤 바운스 현상 제한 */
+body {
+    touch-action: manipulation;
+}
+
+/* 에메랄드 그린 빛깔의 네온 텍스트 효과 */
+.neon-text-green {
+    text-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+}
+
+/* 로즈 핑크빛의 네온 게임오버 텍스트 효과 */
+.neon-text-rose {
+    text-shadow: 0 0 12px rgba(244, 63, 94, 0.7);
+}
+
+/* 화면 전환 시 은은하게 반투명해지는 필터 효과 */
+.glass-overlay {
+    background-color: rgba(2, 6, 23, 0.85);
+    backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+}
+
+/* 네온 컬러 경계선을 탑재한 게임오버 팝업창 */
+.gameover-card {
+    background: rgba(15, 23, 42, 0.95);
+    border: 2px solid rgba(244, 63, 94, 0.4);
+    box-shadow: 0 10px 25px -5px rgba(244, 63, 94, 0.2);
+}
