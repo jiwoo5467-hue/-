@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>우주 공룡 디노의 모험</title>
+    
+    <!-- [외부 라이브러리] Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 분리된 커스텀 CSS 파일 연결 -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col items-center justify-between p-4 font-sans overflow-hidden">
+
+    <!-- 1. 상단 정보창 (헤더 & 스코어보드) -->
+    <header class="w-full max-w-2xl flex justify-between items-center my-2">
+        <div class="flex items-center space-x-2">
+            <span class="text-3xl">🦖</span>
+            <div class="flex flex-col">
+                <h1 class="text-xl font-bold tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-cyan-400 neon-text-green leading-none">
+                    COSMIC DINO
+                </h1>
+                <span class="text-[10px] text-cyan-400 font-semibold tracking-wider">BABY PICKLES</span>
+            </div>
+        </div>
+        <div class="flex space-x-4 text-xs md:text-sm font-semibold bg-slate-800 px-4 py-2 rounded-full border border-slate-700 shadow-lg">
+            <div>SCORE: <span id="score" class="text-green-400 font-mono">00000</span></div>
+            <div class="text-slate-400">|</div>
+            <div>HI-SCORE: <span id="highScore" class="text-yellow-400 font-mono">00000</span></div>
+        </div>
+    </header>
+
+    <!-- 2. 중앙 메인 게임 화면 (캔버스 & UI 오버레이) -->
+    <main class="relative w-full max-w-2xl aspect-[2/1] bg-slate-950 rounded-2xl overflow-hidden border-2 border-slate-700 shadow-2xl flex flex-col items-center justify-center">
+        <!-- 실제 게임 화면이 그려질 도화지 -->
+        <canvas id="gameCanvas" class="w-full h-full block"></canvas>
+
+        <!-- 화면을 덮는 안내창 오버레이 -->
+        <div id="overlay" class="absolute inset-0 glass-overlay flex flex-col items-center justify-center p-4">
+            
+            <!-- [A] 게임 시작 전 대기 화면 -->
+            <div id="startState" class="text-center space-y-4 w-full max-w-md">
+                <h2 class="text-3xl font-extrabold text-green-400 tracking-wide animate-pulse neon-text-green">
+                    우주 공룡 디노의 모험
+                </h2>
+                <p class="text-slate-300 text-sm">
+                    갈수록 우주 속도가 점점 빨라집니다! 최고 속도에 도달하고 은하계 최고 기록에 도전하세요!
+                </p>
+
+                <button id="startButton" class="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-slate-950 font-bold rounded-xl shadow-lg shadow-green-500/20 transform active:scale-95 transition-all text-lg tracking-wide">
+                    모험 시작하기 (Space)
+                </button>
+                <div class="text-xs text-slate-400 space-y-1">
+                    <p>🖥️ PC 조작: Space 키 또는 ↑ 방향키 (점프) / ↓ 방향키 (고개 숙이기)</p>
+                    <p>📱 모바일 조작: 화면 하단의 점프 / 숙이기 버튼 터치</p>
+                </div>
+            </div>
+
+            <!-- [B] 게임 오버 화면 -->
+            <div id="gameOverState" class="hidden w-full max-w-sm gameover-card p-6 rounded-2xl text-center space-y-5">
+                <div class="space-y-1">
+                    <h2 class="text-4xl font-extrabold text-rose-500 tracking-widest uppercase animate-pulse neon-text-rose">
+                        GAME OVER
+                    </h2>
+                    <p class="text-xs text-slate-400 tracking-wide">장애물과 부딪히고 말았습니다!</p>
+                </div>
+
+                <!-- 최종 기록 표기판 -->
+                <div class="bg-slate-950/80 p-4 rounded-xl border border-slate-800 space-y-3">
+                    <div class="flex justify-between items-center text-sm px-1">
+                        <span class="text-slate-400">최종 획득 점수</span>
+                        <span id="finalScore" class="text-2xl font-bold text-green-400 font-mono">0</span>
+                    </div>
+                    <div class="h-[1px] bg-slate-800 w-full"></div>
+                    <div class="flex justify-between items-center text-sm px-1">
+                        <span class="text-slate-400">우주 최고 기록 (HI)</span>
+                        <span id="finalHighScore" class="text-lg font-bold text-yellow-400 font-mono">00000</span>
+                    </div>
+                </div>
+
+                <!-- 조작 액션 버튼 -->
+                <div class="flex flex-col space-y-2">
+                    <button id="restartButton" class="w-full py-3.5 bg-gradient-to-r from-rose-500 to-orange-600 hover:from-rose-400 hover:to-orange-500 text-white font-bold rounded-xl shadow-lg shadow-rose-500/20 transform active:scale-95 transition-all text-lg tracking-wider">
+                        다시 도전하기 (Space)
+                    </button>
+                    <button id="homeButton" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold rounded-xl text-xs transition-all border border-slate-700/50">
+                        처음 화면으로 돌아가기
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 3. 하단 모바일 전용 수동 컨트롤 패널 -->
+    <div class="w-full max-w-2xl grid grid-cols-2 gap-4 mt-4 mb-2">
+        <button id="touchJump" class="h-16 active:scale-95 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl flex flex-col items-center justify-center transition-all shadow-md active:bg-green-600 active:border-green-400">
+            <span class="text-xl">▲</span>
+            <span class="text-xs font-semibold text-slate-400">JUMP</span>
+        </button>
+        <button id="touchDuck" class="h-16 active:scale-95 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl flex flex-col items-center justify-center transition-all shadow-md active:bg-blue-600 active:border-blue-400">
+            <span class="text-xl">▼</span>
+            <span class="text-xs font-semibold text-slate-400">DUCK</span>
+        </button>
+    </div>
+
+    <!-- 4. 카피라이트 푸터 -->
+    <footer class="text-center text-xs text-slate-500 mb-2">
+        &copy; 2026 Cosmic Dino Run. Built with Love.
+    </footer>
+
+    <!-- 분리된 커스텀 JavaScript 파일 연결 -->
+    <script src="game.js"></script>
+</body>
+</html>
